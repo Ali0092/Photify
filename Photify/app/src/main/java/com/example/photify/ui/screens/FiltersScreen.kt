@@ -39,12 +39,8 @@ fun FiltersScreen(navController: NavController) {
 
     navigation = navController
 
-    var myImageBitmap : Bitmap? = null
     val context= LocalContext.current
 
-    val imageUri = remember {
-        mutableStateOf<Uri?>(null)
-    }
     val bitmapState = remember {
         mutableStateOf<Bitmap?>(null)
     }
@@ -55,15 +51,15 @@ fun FiltersScreen(navController: NavController) {
     val galleryLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
             if (uri != null) {
-                imageUri.value = uri
+                //Converting Uri into Bitmap....
                 bitmapState.value =
-                    MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri.value)
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
 
             }
         }
 
-
     LaunchedEffect(Unit) {
+        //Launching Intent ....
         galleryLauncher.launch("image/*")
     }
 
@@ -78,14 +74,13 @@ fun FiltersScreen(navController: NavController) {
             mutableStateOf<ColorMatrix?>(null)
         }
 
+        //ColorFilter that contains the ColorMatrix Argument....
         var filter : ColorFilter? = null
-
-
-
         filter= matrix.value?.let { ColorFilter.colorMatrix(it) }
 
         TopBar()
         Spacer(modifier = Modifier.weight(1f))
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -95,8 +90,8 @@ fun FiltersScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-          //  Cloudy(radius = blurRadius.value) {
-            if(imageUri.value!=null){
+            //Image Either Blured or Not.....
+            if(bitmapState.value!=null){
                 Column {
                     if(blurRadius.value!=0){
                         Cloudy(radius = blurRadius.value, modifier = Modifier.fillMaxSize()) {
@@ -120,9 +115,6 @@ fun FiltersScreen(navController: NavController) {
                 }
             }
 
-          //  }
-
-
         }
         Spacer(modifier = Modifier.weight(1f))
         Column(
@@ -136,6 +128,8 @@ fun FiltersScreen(navController: NavController) {
             Row(modifier = Modifier
                 .horizontalScroll(rememberScrollState())
                 .padding(start = 10.dp, end = 10.dp)){
+
+                //None Button....
                 Card(
                     modifier = Modifier
                         .height(75.dp)
@@ -170,16 +164,19 @@ fun FiltersScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.width(10.dp))
 
+                //First Filter Group....
                 firstFiltersGroup(filter = matrix,blurRadius)
                 Spacer(modifier = Modifier.width(10.dp))
 
+                //Second Filter Group....
                 secondFiltersGroup(filter = matrix,blurRadius)
-
                 Spacer(modifier = Modifier.width(10.dp))
 
+                //Third Filter Group....
                 thirdFiltersGroup(filter = matrix,blurRadius)
                 Spacer(modifier = Modifier.width(10.dp))
 
+                //Blur button...
                 Card(
                     modifier = Modifier
                         .height(75.dp)
